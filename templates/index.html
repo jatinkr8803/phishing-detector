@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL Phishing Detection Tool</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- CSS LINK -->
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="header">
+  <h1>URL <span>Phishing</span> Detection Tool</h1>
+  <p>Check if a URL is Real or Phishing</p>
+
+  <div class="search-box">
+    <input type="text" id="urlInput" placeholder="http://example.com">
+    <button onclick="scanURL()">Scan URL</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="cards-grid">
+
+    <div class="card">
+      <h3>Domain Age (in days)</h3>
+      <p id="domainAge">Checking...</p>
+    </div>
+
+    <div class="card">
+      <h3>Google Safe</h3>
+      <p id="safeBrowsing">Checking...</p>
+    </div>
+
+    <div class="card">
+      <h3>AI Result</h3>
+      <p id="aiResult">Analyzing...</p>
+    </div>
+
+    <div class="card">
+      <h3>Scan Status</h3>
+      <p id="scanStatus">Waiting...</p>
+    </div>
+
+  </div>
+
+  <div class="result-banner" id="resultBanner">
+    <h2 id="bannerTitle">This URL is SAFE</h2>
+    <p id="bannerDesc">The website is secure</p>
+  </div>
+
+</div>
+
+<!-- JS LINK -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
