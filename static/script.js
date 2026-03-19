@@ -52,21 +52,32 @@ document.addEventListener("DOMContentLoaded", function () {
       // 🔥 FIXED LOGIC
       // -------------------------------
 
-      const isDanger =
-        data.prediction === "Phishing" ||
-        data.prediction === "Suspicious";
+      const isPhishing = data.prediction === "Phishing";
+      const isSuspicious = data.prediction === "Suspicious";
 
-      document.getElementById('scanStatus').textContent =
-        isDanger ? "⚠️ Threat Found" : "✅ No Threat Found";
+      // Scan status
+      if (isPhishing || isSuspicious) {
+        document.getElementById('scanStatus').textContent = "⚠️ Threat Found";
+      } else {
+        document.getElementById('scanStatus').textContent = "✅ No Threat Found";
+      }
 
       // Banner
-      if (isDanger) {
+      if (isPhishing) {
         document.getElementById('bannerTitle').textContent =
-          "⚠️ This URL is NOT SAFE";
+          "⚠️ This URL is PHISHING";
         document.getElementById('bannerDesc').textContent =
-          "Potential phishing or suspicious website detected";
+          "Dangerous website detected";
         document.getElementById('resultBanner').style.background = "#ffebee";
-      } else {
+      }
+      else if (isSuspicious) {
+        document.getElementById('bannerTitle').textContent =
+          "⚠️ This URL is SUSPICIOUS";
+        document.getElementById('bannerDesc').textContent =
+          "This site may be unsafe, proceed carefully";
+        document.getElementById('resultBanner').style.background = "#fff3e0";
+      }
+      else {
         document.getElementById('bannerTitle').textContent =
           "✅ This URL is SAFE";
         document.getElementById('bannerDesc').textContent =

@@ -39,10 +39,10 @@ def analyze():
         features = extract_features(url)
 
         # -------------------------------
-        # Domain age (FIXED)
+        # Domain age
         # -------------------------------
         try:
-            domain_age = get_domain_age(url)  # returns -1 if fail
+            domain_age = get_domain_age(url)
         except:
             domain_age = -1
 
@@ -71,19 +71,23 @@ def analyze():
             prediction = 0
 
         # -------------------------------
-        # 🔥 FINAL DECISION LOGIC
+        # 🔥 IMPROVED STRICT LOGIC
         # -------------------------------
         score = 0
 
-        if not safe_status:
-            score += 2
-
+        # AI model
         if prediction == 1:
             score += 2
 
+        # Domain age (important)
         if domain_age != -1 and domain_age < 30:
-            score += 1
+            score += 2
 
+        # Safe browsing
+        if not safe_status:
+            score += 2
+
+        # Final decision
         if score >= 3:
             final_result = "Phishing"
         elif score == 2:
