@@ -1,120 +1,40 @@
-from flask import Flask, request, jsonify, render_template
-import pickle
-import pandas as pd
-import traceback
-import os
+# -------------------------------
+# 🔥 STRONG SECURITY LOGIC (FINAL)
+# -------------------------------
 
-from utils.url_feature import extract_features
-from utils.domain_age import get_domain_age
-from utils.safe_browsing import check_safe_browsing
+# Rule 1: Suspicious keywords
+suspicious_keywords = [
+    "login", "verify", "update", "secure",
+    "account", "bank", "paypal", "facebook"
+]
 
-app = Flask(__name__)
+url_lower = url.lower()
 
-# Load model
-try:
-    model = pickle.load(open("model/phishing_model.pkl", "rb"))
-    print("✅ Model loaded")
-except Exception as e:
-    print("❌ Model error:", e)
-    model = None
+keyword_flag = any(word in url_lower for word in suspicious_keywords)
 
+# Rule 2: New domain
+new_domain_flag = (domain_age != -1 and domain_age < 30)
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+# Rule 3: ML model
+ml_flag = (prediction == 1)
 
+# Rule 4: Safe browsing
+blacklist_flag = (not safe_status)
 
-@app.route("/analyze", methods=["POST"])
-def analyze():
-    try:
-        data = request.get_json()
-        url = data.get("url")
+# -------------------------------
+# FINAL DECISION
+# -------------------------------
+if blacklist_flag:
+    final_result = "Phishing"
 
-        if not url:
-            return jsonify({"error": "No URL provided"}), 400
+elif keyword_flag and new_domain_flag:
+    final_result = "Phishing"
 
-        # -------------------------------
-        # Feature extraction
-        # -------------------------------
-        features = extract_features(url)
+elif ml_flag:
+    final_result = "Phishing"
 
-        # -------------------------------
-        # Domain age
-        # -------------------------------
-        try:
-            domain_age = get_domain_age(url)
-        except:
-            domain_age = -1
+elif new_domain_flag:
+    final_result = "Suspicious"
 
-        features["Domain_Age"] = 0 if domain_age == -1 else domain_age
-
-        # -------------------------------
-        # Safe browsing
-        # -------------------------------
-        try:
-            safe_status = check_safe_browsing(url)  # True/False
-        except:
-            safe_status = True
-
-        # -------------------------------
-        # Model prediction
-        # -------------------------------
-        df = pd.DataFrame([features])
-
-        if model is not None:
-            try:
-                df = df.reindex(columns=model.feature_names_in_, fill_value=0)
-                prediction = model.predict(df)[0]
-            except:
-                prediction = 0
-        else:
-            prediction = 0
-
-        # -------------------------------
-        # 🔥 IMPROVED STRICT LOGIC
-        # -------------------------------
-        score = 0
-
-        # AI model
-        if prediction == 1:
-            score += 2
-
-        # Domain age (important)
-        if domain_age != -1 and domain_age < 30:
-            score += 2
-
-        # Safe browsing
-        if not safe_status:
-            score += 2
-
-        # Final decision
-        if score >= 3:
-            final_result = "Phishing"
-        elif score == 2:
-            final_result = "Suspicious"
-        else:
-            final_result = "Legitimate"
-
-        # -------------------------------
-        # RESPONSE
-        # -------------------------------
-        return jsonify({
-            "url": url,
-            "prediction": final_result,
-            "safe_browsing": "Safe" if safe_status else "Danger",
-            "domain_age_days": domain_age
-        })
-
-    except Exception as e:
-        print("🔥 SERVER ERROR:")
-        traceback.print_exc()
-
-        return jsonify({
-            "error": "Server crashed",
-            "details": str(e)
-        }), 500
-
-
-# Run server
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+else:
+    final_result = "Legitimate"
