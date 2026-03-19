@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Loading state
+    // Loading
     document.getElementById('domainAge').textContent = 'Checking...';
     document.getElementById('safeBrowsing').textContent = 'Checking...';
     document.getElementById('aiResult').textContent = 'Analyzing...';
@@ -34,9 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // -------------------------------
-      // UPDATE UI
+      // Update UI
       // -------------------------------
-
       document.getElementById('domainAge').textContent =
         data.domain_age_days > 0
           ? data.domain_age_days + " days"
@@ -49,28 +48,29 @@ document.addEventListener("DOMContentLoaded", function () {
         data.prediction;
 
       // -------------------------------
-      // 🔥 FIXED LOGIC
+      // 🔥 FIXED STATUS LOGIC
       // -------------------------------
-
-      const isPhishing = data.prediction === "Phishing";
-      const isSuspicious = data.prediction === "Suspicious";
-
-      // Scan status
-      if (isPhishing || isSuspicious) {
+      if (data.prediction === "Phishing") {
         document.getElementById('scanStatus').textContent = "⚠️ Threat Found";
-      } else {
+      }
+      else if (data.prediction === "Suspicious") {
+        document.getElementById('scanStatus').textContent = "⚠️ Potential Risk";
+      }
+      else {
         document.getElementById('scanStatus').textContent = "✅ No Threat Found";
       }
 
-      // Banner
-      if (isPhishing) {
+      // -------------------------------
+      // 🔥 FIXED BANNER
+      // -------------------------------
+      if (data.prediction === "Phishing") {
         document.getElementById('bannerTitle').textContent =
           "⚠️ This URL is PHISHING";
         document.getElementById('bannerDesc').textContent =
           "Dangerous website detected";
         document.getElementById('resultBanner').style.background = "#ffebee";
       }
-      else if (isSuspicious) {
+      else if (data.prediction === "Suspicious") {
         document.getElementById('bannerTitle').textContent =
           "⚠️ This URL is SUSPICIOUS";
         document.getElementById('bannerDesc').textContent =
@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('bannerTitle').textContent =
         "❌ Error analyzing URL";
       document.getElementById('bannerDesc').textContent =
-        "Server is not responding or crashed";
+        "Server is not responding";
 
       document.getElementById('resultBanner').style.background = "#fff3e0";
 
