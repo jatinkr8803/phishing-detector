@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // -------------------------------
-      // Update UI
+      // UPDATE UI
       // -------------------------------
       document.getElementById('domainAge').textContent =
         data.domain_age_days > 0
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
         data.prediction;
 
       // -------------------------------
-      // 🔥 FIXED STATUS LOGIC
+      // STATUS
       // -------------------------------
       if (data.prediction === "Phishing") {
         document.getElementById('scanStatus').textContent = "⚠️ Threat Found";
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // -------------------------------
-      // 🔥 FIXED BANNER
+      // BANNER
       // -------------------------------
       if (data.prediction === "Phishing") {
         document.getElementById('bannerTitle').textContent =

@@ -10,7 +10,9 @@ from utils.safe_browsing import check_safe_browsing
 
 app = Flask(__name__)
 
-# Load model
+# -------------------------------
+# LOAD MODEL
+# -------------------------------
 try:
     model = pickle.load(open("model/phishing_model.pkl", "rb"))
     print("✅ Model loaded")
@@ -19,11 +21,17 @@ except Exception as e:
     model = None
 
 
+# -------------------------------
+# HOME
+# -------------------------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
+# -------------------------------
+# ANALYZE
+# -------------------------------
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
@@ -34,12 +42,12 @@ def analyze():
             return jsonify({"error": "No URL provided"}), 400
 
         # -------------------------------
-        # Feature extraction
+        # FEATURES
         # -------------------------------
         features = extract_features(url)
 
         # -------------------------------
-        # Domain age
+        # DOMAIN AGE
         # -------------------------------
         try:
             domain_age = get_domain_age(url)
@@ -49,7 +57,7 @@ def analyze():
         features["Domain_Age"] = 0 if domain_age == -1 else domain_age
 
         # -------------------------------
-        # Safe browsing
+        # SAFE BROWSING
         # -------------------------------
         try:
             safe_status = check_safe_browsing(url)  # True/False
@@ -57,7 +65,7 @@ def analyze():
             safe_status = True
 
         # -------------------------------
-        # Model prediction
+        # MODEL
         # -------------------------------
         df = pd.DataFrame([features])
 
@@ -71,24 +79,35 @@ def analyze():
             prediction = 0
 
         # -------------------------------
-        # 🔥 FINAL SMART LOGIC (IMPORTANT)
+        # 🔥 FINAL SMART LOGIC (FIXED)
         # -------------------------------
         url_lower = url.lower()
 
+        # Improved keyword list
         suspicious_keywords = [
-            "login", "verify", "update", "secure",
-            "account", "bank", "paypal", "facebook"
+            "login", "verify", "verification", "update",
+            "secure", "account", "bank", "paypal",
+            "facebook", "signin", "confirm"
         ]
 
+        brand_keywords = ["paypal", "facebook", "google", "bank"]
+
         keyword_flag = any(word in url_lower for word in suspicious_keywords)
+        brand_flag = any(brand in url_lower for brand in brand_keywords)
         new_domain_flag = (domain_age != -1 and domain_age < 30)
         ml_flag = (prediction == 1)
         blacklist_flag = (not safe_status)
 
+        # -------------------------------
+        # FINAL DECISION
+        # -------------------------------
         if blacklist_flag:
             final_result = "Phishing"
 
         elif keyword_flag and new_domain_flag:
+            final_result = "Phishing"
+
+        elif brand_flag and "-" in url_lower:
             final_result = "Phishing"
 
         elif ml_flag:
@@ -101,7 +120,7 @@ def analyze():
             final_result = "Legitimate"
 
         # -------------------------------
-        # Response
+        # RESPONSE
         # -------------------------------
         return jsonify({
             "url": url,
@@ -120,5 +139,8 @@ def analyze():
         }), 500
 
 
+# -------------------------------
+# RUN
+# -------------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
