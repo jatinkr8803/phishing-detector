@@ -1,20 +1,15 @@
 import requests
 import os
 
-# 🔐 Secure API key from environment variable
 API_KEY = os.environ.get("API_KEY")
-
 
 def check_safe_browsing(url):
     try:
-        # Check if API key exists
         if not API_KEY:
-            return "Error"
+            return True  # assume safe if no key
 
-        # Google Safe Browsing API endpoint
-        endpoint = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={API_KEY}"
+        api_url = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={API_KEY}"
 
-        # Request payload
         payload = {
             "client": {
                 "clientId": "phishing-detector",
@@ -24,27 +19,18 @@ def check_safe_browsing(url):
                 "threatTypes": ["MALWARE", "SOCIAL_ENGINEERING"],
                 "platformTypes": ["ANY_PLATFORM"],
                 "threatEntryTypes": ["URL"],
-                "threatEntries": [
-                    {"url": url}
-                ]
+                "threatEntries": [{"url": url}]
             }
         }
 
-        # Send POST request
-        response = requests.post(endpoint, json=payload)
+        res = requests.post(api_url, json=payload)
+        result = res.json()
 
-        # Check response status
-        if response.status_code != 200:
-            return "Error"
-
-        data = response.json()
-
-        # Check if URL is flagged
-        if "matches" in data:
-            return "Blacklisted"
+        # 🔥 FIX: return BOOLEAN
+        if "matches" in result:
+            return False   # ❌ dangerous
         else:
-            return "Safe"
+            return True    # ✅ safe
 
-    except Exception as e:
-        print("Safe Browsing Error:", e)
-        return "Error"
+    except:
+        return True  # fail-safe

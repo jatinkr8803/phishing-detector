@@ -4,6 +4,8 @@ import pandas as pd
 import traceback
 import os
 
+from utils import domain_age
+from utils import domain_age
 from utils.url_feature import extract_features
 from utils.domain_age import get_domain_age
 from utils.safe_browsing import check_safe_browsing
@@ -65,31 +67,28 @@ def analyze():
         else:
             prediction = 0
 
-        # 🔥 Improved decision logic
+        # 🔥 FIXED DECISION LOGIC
         score = 0
 
-        if safe_status == "Blacklisted":
+        # Safe browsing check
+        if safe_status == False or safe_status == "Blacklisted":
             score += 2
 
+        # AI model
         if prediction == 1:
+            score += 2
+
+        # Domain age
+        if  domain_age < 30:
             score += 1
 
-        if domain_age < 30:
-            score += 1
-
-        if score >= 2:
+        # Final decision
+        if score >= 3:
             final_result = "Phishing"
-        elif score == 1:
+        elif score == 2:
             final_result = "Suspicious"
         else:
             final_result = "Legitimate"
-
-        return jsonify({
-            "url": url,
-            "prediction": final_result,
-            "safe_browsing": safe_status,
-            "domain_age_days": domain_age
-        })
 
     except Exception as e:
         print("🔥 SERVER ERROR:")
