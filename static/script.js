@@ -23,19 +23,20 @@ document.addEventListener("DOMContentLoaded", function () {
         body: JSON.stringify({ url: url })
       });
 
-      // ✅ Handle server errors properly
       if (!response.ok) {
         throw new Error("Server error");
       }
 
       const data = await response.json();
 
-      // ✅ If backend returns error
       if (data.error) {
         throw new Error(data.error);
       }
 
-      // Update UI
+      // -------------------------------
+      // ✅ UPDATE UI VALUES
+      // -------------------------------
+
       document.getElementById('domainAge').textContent =
         data.domain_age_days !== -1
           ? data.domain_age_days + " days"
@@ -47,17 +48,24 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('aiResult').textContent =
         data.prediction;
 
-      document.getElementById('scanStatus').textContent =
-        data.prediction === "Phishing"
-          ? "⚠️ Threat Found"
-          : "✅ No Threat Found";
+      // -------------------------------
+      // 🔥 FIXED LOGIC (IMPORTANT)
+      // -------------------------------
 
-      // Final Banner
-      if (data.prediction === "Phishing") {
+      const isDanger =
+        data.prediction === "Phishing" ||
+        data.prediction === "Suspicious";
+
+      // Scan status
+      document.getElementById('scanStatus').textContent =
+        isDanger ? "⚠️ Threat Found" : "✅ No Threat Found";
+
+      // Banner update
+      if (isDanger) {
         document.getElementById('bannerTitle').textContent =
-          "⚠️ This URL is PHISHING";
+          "⚠️ This URL is NOT SAFE";
         document.getElementById('bannerDesc').textContent =
-          "Dangerous website detected";
+          "Potential phishing or suspicious website detected";
         document.getElementById('resultBanner').style.background = "#ffebee";
       } else {
         document.getElementById('bannerTitle').textContent =
@@ -70,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (error) {
       console.error("ERROR:", error);
 
-      // ❌ Show proper error in UI (instead of only alert)
+      // Error UI
       document.getElementById('scanStatus').textContent = "❌ Error";
       document.getElementById('aiResult').textContent = "Failed";
       document.getElementById('safeBrowsing').textContent = "Error";

@@ -38,7 +38,7 @@ def analyze():
         # Feature extraction
         features = extract_features(url)
 
-        # Domain age (safe)
+        # Domain age
         try:
             domain_age = get_domain_age(url)
             if domain_age == -1:
@@ -48,16 +48,15 @@ def analyze():
 
         features["Domain_Age"] = domain_age
 
-        # Safe browsing (safe)
+        # Safe browsing
         try:
-            safe_status = check_safe_browsing(url)
+            safe_status = check_safe_browsing(url)  # True/False
         except:
-            safe_status = "Error"
+            safe_status = True
 
-        # DataFrame
+        # Model prediction
         df = pd.DataFrame([features])
 
-        # Fix feature mismatch
         if model is not None:
             try:
                 df = df.reindex(columns=model.feature_names_in_, fill_value=0)
@@ -67,22 +66,18 @@ def analyze():
         else:
             prediction = 0
 
-        # 🔥 FIXED DECISION LOGIC
+        # 🔥 FINAL LOGIC
         score = 0
 
-        # Safe browsing check
-        if safe_status == False or safe_status == "Blacklisted":
+        if not safe_status:
             score += 2
 
-        # AI model
         if prediction == 1:
             score += 2
 
-        # Domain age
-        if  domain_age < 30:
+        if domain_age < 30:
             score += 1
 
-        # Final decision
         if score >= 3:
             final_result = "Phishing"
         elif score == 2:
@@ -90,15 +85,17 @@ def analyze():
         else:
             final_result = "Legitimate"
 
-    except Exception as e:
-        print("🔥 SERVER ERROR:")
-        traceback.print_exc()
-
+        # ✅ IMPORTANT RETURN (YOU MISSED THIS)
         return jsonify({
-            "error": "Server crashed",
-            "details": str(e)
-        }), 500
+            "url": url,
+            "prediction": final_result,
+            "safe_browsing": "Safe" if safe_status else "Danger",
+            "domain_age_days": domain_age
+        })
 
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 # ✅ IMPORTANT FOR DEPLOYMENT
 if __name__ == "__main__":
