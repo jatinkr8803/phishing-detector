@@ -4,8 +4,6 @@ import pandas as pd
 import traceback
 import os
 
-from utils import domain_age
-from utils import domain_age
 from utils.url_feature import extract_features
 from utils.domain_age import get_domain_age
 from utils.safe_browsing import check_safe_browsing
@@ -35,26 +33,32 @@ def analyze():
         if not url:
             return jsonify({"error": "No URL provided"}), 400
 
+        # -------------------------------
         # Feature extraction
+        # -------------------------------
         features = extract_features(url)
 
-        # Domain age
+        # -------------------------------
+        # Domain age (FIXED)
+        # -------------------------------
         try:
-            domain_age = get_domain_age(url)
-            if domain_age == -1:
-                domain_age = 0
+            domain_age = get_domain_age(url)  # returns -1 if fail
         except:
-            domain_age = 0
+            domain_age = -1
 
-        features["Domain_Age"] = domain_age
+        features["Domain_Age"] = 0 if domain_age == -1 else domain_age
 
+        # -------------------------------
         # Safe browsing
+        # -------------------------------
         try:
             safe_status = check_safe_browsing(url)  # True/False
         except:
             safe_status = True
 
+        # -------------------------------
         # Model prediction
+        # -------------------------------
         df = pd.DataFrame([features])
 
         if model is not None:
@@ -66,7 +70,9 @@ def analyze():
         else:
             prediction = 0
 
-        # 🔥 FINAL LOGIC
+        # -------------------------------
+        # 🔥 FINAL DECISION LOGIC
+        # -------------------------------
         score = 0
 
         if not safe_status:
@@ -75,7 +81,7 @@ def analyze():
         if prediction == 1:
             score += 2
 
-        if domain_age < 30:
+        if domain_age != -1 and domain_age < 30:
             score += 1
 
         if score >= 3:
@@ -85,7 +91,9 @@ def analyze():
         else:
             final_result = "Legitimate"
 
-        # ✅ IMPORTANT RETURN (YOU MISSED THIS)
+        # -------------------------------
+        # RESPONSE
+        # -------------------------------
         return jsonify({
             "url": url,
             "prediction": final_result,
@@ -94,9 +102,15 @@ def analyze():
         })
 
     except Exception as e:
+        print("🔥 SERVER ERROR:")
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
 
-# ✅ IMPORTANT FOR DEPLOYMENT
+        return jsonify({
+            "error": "Server crashed",
+            "details": str(e)
+        }), 500
+
+
+# Run server
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

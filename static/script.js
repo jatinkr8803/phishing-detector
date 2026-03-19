@@ -34,11 +34,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // -------------------------------
-      // ✅ UPDATE UI VALUES
+      // UPDATE UI
       // -------------------------------
 
       document.getElementById('domainAge').textContent =
-        data.domain_age_days !== -1
+        data.domain_age_days > 0
           ? data.domain_age_days + " days"
           : "Unavailable";
 
@@ -49,18 +49,17 @@ document.addEventListener("DOMContentLoaded", function () {
         data.prediction;
 
       // -------------------------------
-      // 🔥 FIXED LOGIC (IMPORTANT)
+      // 🔥 FIXED LOGIC
       // -------------------------------
 
       const isDanger =
         data.prediction === "Phishing" ||
         data.prediction === "Suspicious";
 
-      // Scan status
       document.getElementById('scanStatus').textContent =
         isDanger ? "⚠️ Threat Found" : "✅ No Threat Found";
 
-      // Banner update
+      // Banner
       if (isDanger) {
         document.getElementById('bannerTitle').textContent =
           "⚠️ This URL is NOT SAFE";
@@ -78,7 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (error) {
       console.error("ERROR:", error);
 
-      // Error UI
       document.getElementById('scanStatus').textContent = "❌ Error";
       document.getElementById('aiResult').textContent = "Failed";
       document.getElementById('safeBrowsing').textContent = "Error";
@@ -95,10 +93,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Make function global
   window.scanURL = scanURL;
 
-  // Enter key support
   document.getElementById('urlInput').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') scanURL();
   });
