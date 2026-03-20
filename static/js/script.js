@@ -59,7 +59,9 @@ function scanURL() {
       return;
     }
 
-    // ✅ FINAL RESULT
+    // =========================
+    // FINAL RESULT
+    // =========================
     if (data.prediction === 1) {
       box.className = 'result-box danger';
       label.innerText = "Phishing Website";
@@ -70,19 +72,38 @@ function scanURL() {
       msg.innerText = "This site looks safe ✅";
     }
 
-    // ✅ DOMAIN AGE
+    // =========================
+    // DOMAIN AGE
+    // =========================
     domainAge.innerText = data.domain_age || "Not Available";
 
-    // ✅ SAFE BROWSING
-    safeBrowsing.innerText = data.safe_browsing || "Unknown";
+    // =========================
+    // 🔥 SAFE BROWSING (FIXED UX)
+    // =========================
+    let sb = data.safe_browsing || "Unknown";
 
-    // ✅ 🔥 CLEAN PHISHING RISK (NO NUMBERS)
+    if (sb.includes("Safe")) {
+      safeBrowsing.innerText = "No Threat Found ✅";
+      safeBrowsing.style.color = "#22c55e";
+    }
+    else if (sb.includes("Dangerous")) {
+      safeBrowsing.innerText = "Blacklisted ❌";
+      safeBrowsing.style.color = "#ef4444";
+    }
+    else {
+      safeBrowsing.innerText = "Not Verified ⚠️";
+      safeBrowsing.style.color = "#facc15";
+    }
+
+    // =========================
+    // 🔥 PHISHING RISK (CLEAN)
+    // =========================
     if (data.ai_score !== undefined) {
 
       let score = data.ai_score;
       let riskLabel = "";
 
-      // 🎯 If final result is SAFE → always Low
+      // If final result is SAFE → always Low
       if (data.prediction === 0) {
         riskLabel = "Low ✅";
         aiScore.style.color = "#22c55e";
