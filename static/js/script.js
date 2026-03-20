@@ -65,7 +65,7 @@ function scanURL() {
     if (data.prediction === 1) {
       box.className = 'result-box danger';
       label.innerText = "Phishing Website";
-      msg.innerText = "This site is dangerous ⚠️";
+      msg.innerText = "Suspicious behavior detected ⚠️ (May not be blacklisted yet)";
     } else {
       box.className = 'result-box safe';
       label.innerText = "Safe Website";
@@ -78,13 +78,20 @@ function scanURL() {
     domainAge.innerText = data.domain_age || "Not Available";
 
     // =========================
-    // SAFE BROWSING (FIXED 🔥)
+    // SAFE BROWSING (SMART UX 🔥)
     // =========================
     let sb = data.safe_browsing || "Not Verified";
 
     if (sb === "No Threat Found") {
-      safeBrowsing.innerText = "No Threat Found ✅";
-      safeBrowsing.style.color = "#22c55e";
+
+      if (data.prediction === 1) {
+        safeBrowsing.innerText = "Not Blacklisted ⚠️ (But Suspicious)";
+        safeBrowsing.style.color = "#facc15";
+      } else {
+        safeBrowsing.innerText = "No Threat Found ✅";
+        safeBrowsing.style.color = "#22c55e";
+      }
+
     }
     else if (sb === "Threat Found") {
       safeBrowsing.innerText = "Blacklisted ❌";
