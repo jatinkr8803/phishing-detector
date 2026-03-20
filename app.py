@@ -3,16 +3,16 @@ import pickle
 import pandas as pd
 import os
 
-from flask_cors import CORS  # 🔥 ADD THIS
+from flask_cors import CORS
 
 from utils.url_feature import extract_features
 from utils.domain_age import get_domain_age
 from utils.safe_browsing import check_safe_browsing
 
 app = Flask(__name__)
-CORS(app)  # 🔥 VERY IMPORTANT
+CORS(app)
 
-# Load model
+# ✅ Load model safely
 try:
     model = pickle.load(open("model/phishing_model.pkl", "rb"))
     print("✅ Model loaded")
@@ -21,16 +21,21 @@ except Exception as e:
     model = None
 
 
+# ✅ FIXED: Render frontend UI
 @app.route('/')
 def home():
-    return "SecureMind Backend Running 🚀"
+    return render_template('index.html')
 
 
+# ✅ Prediction API
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         data = request.get_json()
         url = data.get("url")
+
+        if not url:
+            return jsonify({"error": "No URL provided"})
 
         print("\n🔍 URL:", url)
 
@@ -53,14 +58,13 @@ def predict():
 
         if model is not None:
             try:
-                prediction = model.predict(features_df)[0]
+                prediction = int(model.predict(features_df)[0])
 
                 try:
                     prob = model.predict_proba(features_df)[0][1]
                     ai_score = round(prob * 100, 2)
                 except:
                     ai_score = 50
-
             except Exception as e:
                 print("❌ ML error:", e)
 
@@ -88,7 +92,7 @@ def predict():
             safe = None
             safe_status = "Not Verified"
 
-        # STEP 5: FINAL DECISION
+        # STEP 5: FINAL DECISION LOGIC
         if safe == "Threat Found":
             final_prediction = 1
         elif age != -1 and age > 180:
@@ -110,12 +114,13 @@ def predict():
         return jsonify({"error": "Server error"})
 
 
+# ✅ Google verification
 @app.route('/google1234567890abcdef.html')
 def google_verification():
     return send_from_directory('static', 'google1234567890abcdef.html')
 
 
-# 🔥 IMPORTANT FOR DEPLOYMENT
+# ✅ Run server
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
