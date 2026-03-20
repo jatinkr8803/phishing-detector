@@ -60,7 +60,7 @@ def analyze():
         # SAFE BROWSING
         # -------------------------------
         try:
-            safe_status = check_safe_browsing(url)  # True/False
+            safe_status = check_safe_browsing(url)
         except:
             safe_status = True
 
@@ -79,38 +79,27 @@ def analyze():
             prediction = 0
 
         # -------------------------------
-        # 🔥 FINAL SMART LOGIC (FIXED)
+        # FLAGS
         # -------------------------------
         url_lower = url.lower()
 
-        # Improved keyword list
-        suspicious_keywords = [
-            "login", "verify", "verification", "update",
-            "secure", "account", "bank", "paypal",
-            "facebook", "signin", "confirm"
-        ]
-
-        brand_keywords = ["paypal", "facebook", "google", "bank"]
-
+        suspicious_keywords = ["login", "verify", "secure", "account", "bank"]
         keyword_flag = any(word in url_lower for word in suspicious_keywords)
-        brand_flag = any(brand in url_lower for brand in brand_keywords)
+
         new_domain_flag = (domain_age != -1 and domain_age < 30)
         ml_flag = (prediction == 1)
         blacklist_flag = (not safe_status)
 
         # -------------------------------
-        # FINAL DECISION
+        # FINAL DECISION (FIXED)
         # -------------------------------
         if blacklist_flag:
             final_result = "Phishing"
 
-        elif keyword_flag and new_domain_flag:
-            final_result = "Phishing"
-
-        elif brand_flag and "-" in url_lower:
-            final_result = "Phishing"
-
         elif ml_flag:
+            final_result = "Phishing"
+
+        elif keyword_flag and new_domain_flag:
             final_result = "Phishing"
 
         elif new_domain_flag:
@@ -118,6 +107,19 @@ def analyze():
 
         else:
             final_result = "Legitimate"
+
+        # -------------------------------
+        # DEBUG (IMPORTANT)
+        # -------------------------------
+        print({
+            "url": url,
+            "prediction_raw": prediction,
+            "safe_status": safe_status,
+            "domain_age": domain_age,
+            "ml_flag": ml_flag,
+            "keyword_flag": keyword_flag,
+            "new_domain_flag": new_domain_flag
+        })
 
         # -------------------------------
         # RESPONSE
@@ -130,17 +132,13 @@ def analyze():
         })
 
     except Exception as e:
-        print("🔥 SERVER ERROR:")
         traceback.print_exc()
-
-        return jsonify({
-            "error": "Server crashed",
-            "details": str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
 
 
 # -------------------------------
-# RUN
+# RUN (RENDER FIX)
 # -------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
