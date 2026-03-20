@@ -1,3 +1,5 @@
+# utils/safe_browsing.py
+
 import requests
 import os
 
@@ -5,8 +7,9 @@ API_KEY = os.environ.get("API_KEY")
 
 def check_safe_browsing(url):
     try:
+        # ❌ If no API key → don't fake safe
         if not API_KEY:
-            return True  # assume safe if no key
+            return None  # unknown
 
         api_url = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={API_KEY}"
 
@@ -26,11 +29,11 @@ def check_safe_browsing(url):
         res = requests.post(api_url, json=payload)
         result = res.json()
 
-        # 🔥 FIX: return BOOLEAN
         if "matches" in result:
-            return False   # ❌ dangerous
+            return False   # ❌ Dangerous
         else:
-            return True    # ✅ safe
+            return True    # ✅ Safe
 
-    except:
-        return True  # fail-safe
+    except Exception as e:
+        print("Safe browsing error:", e)
+        return None

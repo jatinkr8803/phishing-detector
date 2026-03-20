@@ -1,45 +1,48 @@
+# utils/domain_age.py
+
 import whois
 from datetime import datetime
 import tldextract
-import time
 
 def get_domain_age(url):
     try:
         ext = tldextract.extract(url)
         domain = ext.domain + "." + ext.suffix
 
-        # 🔁 Retry (WHOIS unstable)
-        for _ in range(2):
-            try:
-                w = whois.whois(domain)
-                creation_date = w.creation_date
+        try:
+            w = whois.whois(domain)
+            creation_date = w.creation_date
 
-                # Handle list
-                if isinstance(creation_date, list):
-                    creation_date = creation_date[0]
+            # If list → take first
+            if isinstance(creation_date, list):
+                creation_date = creation_date[0]
 
-                # If string → convert
-                if isinstance(creation_date, str):
-                    try:
-                        creation_date = datetime.strptime(creation_date, "%Y-%m-%d")
-                    except:
-                        return -1
+            if not creation_date:
+                return -1
 
-                # If valid date
-                if creation_date:
-                    age_days = (datetime.now() - creation_date).days
+            # 🔥 FIX: remove timezone
+            if hasattr(creation_date, 'tzinfo') and creation_date.tzinfo is not None:
+                creation_date = creation_date.replace(tzinfo=None)
 
-                    # 🔒 Avoid negative/invalid
-                    if age_days < 0 or age_days > 20000:
-                        return -1
+            # Convert string → datetime
+            if isinstance(creation_date, str):
+                try:
+                    creation_date = datetime.strptime(creation_date, "%Y-%m-%d")
+                except:
+                    return -1
 
-                    return age_days
+            # Now safe subtraction
+            age_days = (datetime.now() - creation_date).days
 
-            except:
-                time.sleep(1)
+            if 0 < age_days < 20000:
+                return age_days
 
-        return -1
+            return -1
+
+        except Exception as e:
+            print("WHOIS failed:", e)
+            return -1
 
     except Exception as e:
-        print("WHOIS error:", e)
+        print("Domain error:", e)
         return -1
