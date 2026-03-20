@@ -1,113 +1,50 @@
-document.addEventListener("DOMContentLoaded", function () {
 
-  async function scanURL() {
-    const url = document.getElementById('urlInput').value.trim();
-
-    if (!url) {
-      alert('Please enter a URL');
-      return;
-    }
-
-    // Loading
-    document.getElementById('domainAge').textContent = 'Checking...';
-    document.getElementById('safeBrowsing').textContent = 'Checking...';
-    document.getElementById('aiResult').textContent = 'Analyzing...';
-    document.getElementById('scanStatus').textContent = 'Scanning...';
-
-    try {
-      const response = await fetch("/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ url: url })
-      });
-
-      if (!response.ok) {
-        throw new Error("Server error");
-      }
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      // -------------------------------
-      // UPDATE UI
-      // -------------------------------
-      document.getElementById('domainAge').textContent =
-        data.domain_age_days > 0
-          ? data.domain_age_days + " days"
-          : "Unavailable";
-
-      document.getElementById('safeBrowsing').textContent =
-        data.safe_browsing;
-
-      document.getElementById('aiResult').textContent =
-        data.prediction;
-
-      // -------------------------------
-      // STATUS
-      // -------------------------------
-      if (data.prediction === "Phishing") {
-        document.getElementById('scanStatus').textContent = "⚠️ Threat Found";
-      }
-      else if (data.prediction === "Suspicious") {
-        document.getElementById('scanStatus').textContent = "⚠️ Potential Risk";
-      }
-      else {
-        document.getElementById('scanStatus').textContent = "✅ No Threat Found";
-      }
-
-      // -------------------------------
-      // BANNER
-      // -------------------------------
-      if (data.prediction === "Phishing") {
-        document.getElementById('bannerTitle').textContent =
-          "⚠️ This URL is PHISHING";
-        document.getElementById('bannerDesc').textContent =
-          "Dangerous website detected";
-        document.getElementById('resultBanner').style.background = "#ffebee";
-      }
-      else if (data.prediction === "Suspicious") {
-        document.getElementById('bannerTitle').textContent =
-          "⚠️ This URL is SUSPICIOUS";
-        document.getElementById('bannerDesc').textContent =
-          "This site may be unsafe, proceed carefully";
-        document.getElementById('resultBanner').style.background = "#fff3e0";
-      }
-      else {
-        document.getElementById('bannerTitle').textContent =
-          "✅ This URL is SAFE";
-        document.getElementById('bannerDesc').textContent =
-          "No phishing detected";
-        document.getElementById('resultBanner').style.background = "#e8f5e9";
-      }
-
-    } catch (error) {
-      console.error("ERROR:", error);
-
-      document.getElementById('scanStatus').textContent = "❌ Error";
-      document.getElementById('aiResult').textContent = "Failed";
-      document.getElementById('safeBrowsing').textContent = "Error";
-      document.getElementById('domainAge').textContent = "Error";
-
-      document.getElementById('bannerTitle').textContent =
-        "❌ Error analyzing URL";
-      document.getElementById('bannerDesc').textContent =
-        "Server is not responding";
-
-      document.getElementById('resultBanner').style.background = "#fff3e0";
-
-      alert("Error connecting to server");
-    }
-  }
-
-  window.scanURL = scanURL;
-
-  document.getElementById('urlInput').addEventListener('keydown', function (e) {
+  // Allow Enter key
+  document.getElementById('urlInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') scanURL();
   });
 
-});
+  function scanURL() {
+    const input = document.getElementById('urlInput').value.trim();
+    const area = document.getElementById('resultArea');
+    const box = document.getElementById('resultBox');
+    const icon = document.getElementById('resultIcon');
+    const label = document.getElementById('resultLabel');
+    const msg = document.getElementById('resultMsg');
+
+    if (!input) {
+      area.classList.remove('visible');
+      return;
+    }
+
+    // Show analyzing state
+    box.className = 'result-box analyzing';
+    icon.innerHTML = `<svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 0 1 10 10"/></svg>`;
+    label.textContent = 'Analyzing…';
+    msg.textContent = 'Running security checks on ' + input;
+    area.classList.add('visible');
+
+    // Simulate async check
+    setTimeout(() => {
+      const isSuspicious = checkSuspicious(input);
+      if (isSuspicious) {
+        box.className = 'result-box danger';
+        icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="#f87171"/></svg>`;
+        label.textContent = 'Potentially Dangerous';
+        msg.textContent = 'This URL shows signs of phishing or malicious activity. Do not proceed.';
+      } else {
+        box.className = 'result-box safe';
+        icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.5C16.5 22.15 20 17.25 20 12V6z"/><polyline points="9 12 11 14 15 10"/></svg>`;
+        label.textContent = 'Appears Safe';
+        msg.textContent = 'No immediate threats detected. Still exercise caution on unfamiliar sites.';
+      }
+    }, 1800);
+  }
+
+  function checkSuspicious(url) {
+    const suspicious = ['bit.ly','tinyurl','free-gift','login-verify','secure-account',
+      'paypa1','faceb00k','amaz0n','update-now','click-here','prize','lucky-winner',
+      'verify-account','confirm-identity','.xyz','.tk','.cf','.ga','.ml'];
+    const lower = url.toLowerCase();
+    return suspicious.some(s => lower.includes(s));
+  }

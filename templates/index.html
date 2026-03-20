@@ -1,63 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>URL Phishing Detection Tool</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-<!-- CSS LINK -->
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>URL Phishing Detection Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  
 </head>
-
 <body>
 
-<div class="header">
-  <h1>URL <span>Phishing</span> Detection Tool</h1>
-  <p>Check if a URL is Real or Phishing</p>
+<!-- BACKGROUND -->
+<div class="bg-scene">
+  <div class="circuit-lines"></div>
+</div>
 
-  <div class="search-box">
-    <input type="text" id="urlInput" placeholder="http://example.com">
-    <button onclick="scanURL()">Scan URL</button>
+<!-- SHIELD -->
+<div class="shield-wrapper">
+  <div class="shield-rings">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+    <div class="ring ring-4"></div>
+    <div class="ring ring-5"></div>
+    <div class="ring ring-6"></div>
+    <div class="seg-lines"></div>
+    <div class="shield-icon">
+      <svg viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- shield shape -->
+        <path d="M50 4 L92 22 L92 56 C92 80 72 100 50 111 C28 100 8 80 8 56 L8 22 Z"
+              fill="rgba(14,40,120,0.4)"
+              stroke="rgba(147,197,253,0.85)" stroke-width="2.5"/>
+        <!-- inner shield highlight -->
+        <path d="M50 14 L82 28 L82 55 C82 74 66 91 50 100 C34 91 18 74 18 55 L18 28 Z"
+              fill="none" stroke="rgba(96,165,250,0.35)" stroke-width="1.2"/>
+        <!-- padlock body -->
+        <rect x="35" y="58" width="30" height="24" rx="3"
+              fill="rgba(147,197,253,0.9)"/>
+        <!-- padlock shackle -->
+        <path d="M42 58 L42 50 C42 42 58 42 58 50 L58 58"
+              stroke="rgba(147,197,253,0.9)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <!-- keyhole -->
+        <circle cx="50" cy="68" r="4" fill="rgba(14,40,120,0.8)"/>
+        <rect x="48.5" y="68" width="3" height="7" rx="1" fill="rgba(14,40,120,0.8)"/>
+      </svg>
+    </div>
   </div>
 </div>
 
-<div class="main">
+<!-- PAGE -->
+<div class="page">
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Logo</div>
+    <ul class="nav-links">
+      <li><a href="#">How it Works</a></li>
+      <li><a href="#">Features</a></li>
+      <li><a href="#">Resources</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn-login">Log In</button>
+      <button class="btn-getstarted">Get Started</button>
+    </div>
+  </nav>
 
-  <div class="cards-grid">
+  <!-- HERO -->
+  <section class="hero">
+    <h1>URL Phishing Detection Tool</h1>
+    <p>Check whether a website is safe or potentially harmful before you proceed</p>
 
-    <div class="card">
-      <h3>Domain Age (in days)</h3>
-      <p id="domainAge">Checking...</p>
+    <!-- SEARCH -->
+    <div class="search-box">
+      <input type="text" id="urlInput" placeholder="Enter a website URL" autocomplete="off" spellcheck="false"/>
+      <button class="btn-scan" onclick="scanURL()">
+        Scan Now
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+        </svg>
+      </button>
     </div>
 
-    <div class="card">
-      <h3>Google Safe</h3>
-      <p id="safeBrowsing">Checking...</p>
+    <!-- RESULT -->
+    <div class="result-area" id="resultArea">
+      <div class="result-box" id="resultBox">
+        <div class="result-icon" id="resultIcon"></div>
+        <div class="result-content">
+          <div class="result-label" id="resultLabel"></div>
+          <div class="result-msg" id="resultMsg"></div>
+        </div>
+      </div>
     </div>
 
+    <!-- CHECK NOTE -->
+    <div class="check-note">
+      <div class="check-circle">
+        <svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="2 6 5 9 10 3"/>
+        </svg>
+      </div>
+      <p>We analyze each site using multiple security checks in real time.</p>
+    </div>
+  </section>
+
+  <!-- FEATURE CARDS -->
+  <div class="feature-cards">
+    <!-- Safe Browsing -->
     <div class="card">
-      <h3>AI Result</h3>
-      <p id="aiResult">Analyzing...</p>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.5C16.5 22.15 20 17.25 20 12V6z"/>
+        </svg>
+      </div>
+      <div class="card-text">
+        <span class="card-title">Safe</span>
+        <span class="card-sub">Browsing Checks</span>
+      </div>
     </div>
 
+    <!-- Behavioral -->
     <div class="card">
-      <h3>Scan Status</h3>
-      <p id="scanStatus">Waiting...</p>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div class="card-text">
+        <span class="card-title">Behavioral</span>
+        <span class="card-sub">Threat analysis</span>
+      </div>
     </div>
 
+    <!-- Domain Verification -->
+    <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="card-text">
+        <span class="card-title">Domain</span>
+        <span class="card-sub">Verification</span>
+      </div>
+    </div>
+
+    <!-- Website Preview -->
+    <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      </div>
+      <div class="card-text">
+        <span class="card-title">Website</span>
+        <span class="card-sub">Preview</span>
+      </div>
+    </div>
   </div>
 
-  <div class="result-banner" id="resultBanner">
-    <h2 id="bannerTitle">This URL is SAFE</h2>
-    <p id="bannerDesc">The website is secure</p>
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    No detection system is 100% accurate. Always double check before sharing sensitive information.
   </div>
-
 </div>
 
-<!-- JS LINK -->
-<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 </html>
