@@ -78,15 +78,15 @@ function scanURL() {
     domainAge.innerText = data.domain_age || "Not Available";
 
     // =========================
-    // 🔥 SAFE BROWSING (FIXED UX)
+    // SAFE BROWSING (FIXED 🔥)
     // =========================
-    let sb = data.safe_browsing || "Unknown";
+    let sb = data.safe_browsing || "Not Verified";
 
-    if (sb.includes("Safe")) {
+    if (sb === "No Threat Found") {
       safeBrowsing.innerText = "No Threat Found ✅";
       safeBrowsing.style.color = "#22c55e";
     }
-    else if (sb.includes("Dangerous")) {
+    else if (sb === "Threat Found") {
       safeBrowsing.innerText = "Blacklisted ❌";
       safeBrowsing.style.color = "#ef4444";
     }
@@ -96,14 +96,13 @@ function scanURL() {
     }
 
     // =========================
-    // 🔥 PHISHING RISK (CLEAN)
+    // PHISHING RISK
     // =========================
     if (data.ai_score !== undefined) {
 
       let score = data.ai_score;
       let riskLabel = "";
 
-      // If final result is SAFE → always Low
       if (data.prediction === 0) {
         riskLabel = "Low ✅";
         aiScore.style.color = "#22c55e";

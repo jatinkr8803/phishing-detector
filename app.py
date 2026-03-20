@@ -38,7 +38,6 @@ def predict():
         features = extract_features(url)
         features_df = pd.DataFrame([features])
 
-        # Align with model
         if model is not None:
             try:
                 features_df = features_df.reindex(
@@ -51,7 +50,7 @@ def predict():
         print("✅ Features extracted")
 
         # =========================
-        # STEP 2: ML
+        # STEP 2: ML Prediction
         # =========================
         prediction = 0
         ai_score = 0
@@ -79,36 +78,38 @@ def predict():
             domain_age = f"{age} days" if age != -1 else "Not Available"
             print("✅ Domain age:", domain_age)
         except:
+            age = -1
             domain_age = "Not Available"
 
         # =========================
-        # STEP 4: Safe Browsing
+        # STEP 4: Safe Browsing (FIXED)
         # =========================
         try:
             safe = check_safe_browsing(url)
 
-            if safe is True:
-                safe_status = "Safe ✅"
-            elif safe is False:
-                safe_status = "Dangerous ❌"
+            if safe == "Threat Found":
+                safe_status = "Threat Found"
+            elif safe == "No Threat Found":
+                safe_status = "No Threat Found"
             else:
-                safe_status = "Unknown ⚠️"
+                safe_status = "Not Verified"
 
             print("✅ Safe browsing:", safe_status)
 
-        except:
-            safe_status = "Unknown ⚠️"
+        except Exception as e:
+            print("Safe Browsing Error:", e)
             safe = None
+            safe_status = "Not Verified"
 
         # =========================
-        # STEP 5: FINAL DECISION (SMART FIX)
+        # STEP 5: FINAL DECISION
         # =========================
 
-        # Rule 1: Blacklisted → always phishing
-        if safe is False:
+        # Rule 1: If blacklisted → phishing
+        if safe == "Threat Found":
             final_prediction = 1
 
-        # Rule 2: Old domain → trust it (ignore ML false positives)
+        # Rule 2: Old domain → safe
         elif age != -1 and age > 180:
             final_prediction = 0
 
@@ -119,6 +120,7 @@ def predict():
         # Rule 4: Otherwise safe
         else:
             final_prediction = 0
+
         print("✅ Response ready\n")
 
         return jsonify({
