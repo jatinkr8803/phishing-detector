@@ -1,4 +1,4 @@
-// script.js
+const BACKEND_URL = "https://your-backend.koyeb.app"; // 🔥 CHANGE THIS
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -40,7 +40,7 @@ function scanURL() {
 
   area.classList.add("visible");
 
-  fetch('/predict', {
+  fetch(`${BACKEND_URL}/predict`, {   // 🔥 FIXED
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -59,31 +59,21 @@ function scanURL() {
       return;
     }
 
-    // =========================
-    // FINAL RESULT
-    // =========================
     if (data.prediction === 1) {
       box.className = 'result-box danger';
       label.innerText = "Phishing Website";
-      msg.innerText = "Suspicious behavior detected ⚠️ (May not be blacklisted yet)";
+      msg.innerText = "Suspicious behavior detected ⚠️";
     } else {
       box.className = 'result-box safe';
       label.innerText = "Safe Website";
       msg.innerText = "This site looks safe ✅";
     }
 
-    // =========================
-    // DOMAIN AGE
-    // =========================
     domainAge.innerText = data.domain_age || "Not Available";
 
-    // =========================
-    // SAFE BROWSING (SMART UX 🔥)
-    // =========================
     let sb = data.safe_browsing || "Not Verified";
 
     if (sb === "No Threat Found") {
-
       if (data.prediction === 1) {
         safeBrowsing.innerText = "Not Blacklisted ⚠️ (But Suspicious)";
         safeBrowsing.style.color = "#facc15";
@@ -91,7 +81,6 @@ function scanURL() {
         safeBrowsing.innerText = "No Threat Found ✅";
         safeBrowsing.style.color = "#22c55e";
       }
-
     }
     else if (sb === "Threat Found") {
       safeBrowsing.innerText = "Blacklisted ❌";
@@ -102,9 +91,6 @@ function scanURL() {
       safeBrowsing.style.color = "#facc15";
     }
 
-    // =========================
-    // PHISHING RISK
-    // =========================
     if (data.ai_score !== undefined) {
 
       let score = data.ai_score;

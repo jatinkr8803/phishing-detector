@@ -1,12 +1,16 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 import pickle
 import pandas as pd
+import os
+
+from flask_cors import CORS  # 🔥 ADD THIS
 
 from utils.url_feature import extract_features
 from utils.domain_age import get_domain_age
 from utils.safe_browsing import check_safe_browsing
 
 app = Flask(__name__)
+CORS(app)  # 🔥 VERY IMPORTANT
 
 # Load model
 try:
@@ -19,7 +23,7 @@ except Exception as e:
 
 @app.route('/')
 def home():
-    return render_template("index.html")
+    return "SecureMind Backend Running 🚀"
 
 
 @app.route('/predict', methods=['POST'])
@@ -30,9 +34,7 @@ def predict():
 
         print("\n🔍 URL:", url)
 
-        # =========================
         # STEP 1: Feature Extraction
-        # =========================
         features = extract_features(url)
         features_df = pd.DataFrame([features])
 
@@ -45,11 +47,7 @@ def predict():
             except:
                 pass
 
-        print("✅ Features extracted")
-
-        # =========================
         # STEP 2: ML Prediction
-        # =========================
         prediction = 0
         ai_score = 0
 
@@ -63,25 +61,18 @@ def predict():
                 except:
                     ai_score = 50
 
-                print("✅ ML done")
-
             except Exception as e:
                 print("❌ ML error:", e)
 
-        # =========================
         # STEP 3: Domain Age
-        # =========================
         try:
             age = get_domain_age(url)
             domain_age = f"{age} days" if age != -1 else "Not Available"
-            print("✅ Domain age:", domain_age)
         except:
             age = -1
             domain_age = "Not Available"
 
-        # =========================
         # STEP 4: Safe Browsing
-        # =========================
         try:
             safe = check_safe_browsing(url)
 
@@ -92,16 +83,12 @@ def predict():
             else:
                 safe_status = "Not Verified"
 
-            print("✅ Safe browsing:", safe_status)
-
         except Exception as e:
             print("Safe Browsing Error:", e)
             safe = None
             safe_status = "Not Verified"
 
-        # =========================
         # STEP 5: FINAL DECISION
-        # =========================
         if safe == "Threat Found":
             final_prediction = 1
         elif age != -1 and age > 180:
@@ -110,8 +97,6 @@ def predict():
             final_prediction = 1
         else:
             final_prediction = 0
-
-        print("✅ Response ready\n")
 
         return jsonify({
             "prediction": int(final_prediction),
@@ -125,13 +110,12 @@ def predict():
         return jsonify({"error": "Server error"})
 
 
-# =========================
-# ✅ Google Verification Route
-# =========================
 @app.route('/google1234567890abcdef.html')
 def google_verification():
     return send_from_directory('static', 'google1234567890abcdef.html')
 
 
+# 🔥 IMPORTANT FOR DEPLOYMENT
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
