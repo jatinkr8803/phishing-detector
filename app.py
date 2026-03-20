@@ -1,6 +1,4 @@
-# app.py
-
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 import pickle
 import pandas as pd
 
@@ -82,7 +80,7 @@ def predict():
             domain_age = "Not Available"
 
         # =========================
-        # STEP 4: Safe Browsing (FIXED)
+        # STEP 4: Safe Browsing
         # =========================
         try:
             safe = check_safe_browsing(url)
@@ -104,20 +102,12 @@ def predict():
         # =========================
         # STEP 5: FINAL DECISION
         # =========================
-
-        # Rule 1: If blacklisted → phishing
         if safe == "Threat Found":
             final_prediction = 1
-
-        # Rule 2: Old domain → safe
         elif age != -1 and age > 180:
             final_prediction = 0
-
-        # Rule 3: New domain + ML suspicious → phishing
         elif prediction == 1 and age != -1 and age <= 180:
             final_prediction = 1
-
-        # Rule 4: Otherwise safe
         else:
             final_prediction = 0
 
@@ -133,6 +123,14 @@ def predict():
     except Exception as e:
         print("🔥 ERROR:", e)
         return jsonify({"error": "Server error"})
+
+
+# =========================
+# ✅ Google Verification Route
+# =========================
+@app.route('/google1234567890abcdef.html')
+def google_verification():
+    return send_from_directory('static', 'google1234567890abcdef.html')
 
 
 if __name__ == "__main__":
