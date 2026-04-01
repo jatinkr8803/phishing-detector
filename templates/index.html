@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="google-site-verification" content="iZuzBW00Q5H-3NVgQ6rVMjrtXu1yfRh4-b7oINAzc78" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SecureMind - Phishing Detection Tool</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
 </head>
 
 <body>
@@ -16,10 +15,9 @@
   <div class="circuit-lines"></div>
 </div>
 
-<!-- ✅ RESTORED RINGS + LOCK -->
+<!-- SHIELD -->
 <div class="shield-wrapper">
   <div class="shield-rings">
-
     <div class="ring ring-1"></div>
     <div class="ring ring-2"></div>
     <div class="ring ring-3"></div>
@@ -29,7 +27,7 @@
 
     <div class="seg-lines"></div>
 
-    <!-- LOCK ICON -->
+    <!-- LOCK -->
     <div class="shield-icon">
       <svg viewBox="0 0 100 115" fill="none">
         <path d="M50 4 L92 22 L92 56 C92 80 72 100 50 111 C28 100 8 80 8 56 L8 22 Z"
@@ -40,7 +38,6 @@
               stroke="#93c5fd" stroke-width="4"/>
       </svg>
     </div>
-
   </div>
 </div>
 
@@ -59,9 +56,17 @@
   <h1>URL Phishing Detection Tool</h1>
   <p>Check whether a website is safe or potentially harmful before you proceed</p>
 
+  <!-- SEARCH -->
   <div class="search-box">
     <input type="text" id="urlInput" placeholder="Enter a website URL">
-    <button class="btn-scan" id="scanBtn">Scan Now</button>
+    <button class="btn-scan" id="scanBtn">
+      Scan Now ↗
+    </button>
+  </div>
+
+  <!-- ✅ NEW LINE -->
+  <div class="scan-info">
+    ✔ We analyze each site using multiple security checks in real time.
   </div>
 
   <!-- RESULT -->
@@ -75,20 +80,30 @@
     <div class="features">
 
       <div class="feature-card">
-        <p>Domain Age(in days)</p>
-        <h3 id="domainAge">-</h3>
+        <p>Safe</p>
+        <h3>Browsing Checks</h3>
       </div>
 
       <div class="feature-card">
-        <p>Safe Browsing</p>
-        <h3 id="safeBrowsing">-</h3>
+        <p>Behavioral</p>
+        <h3>Threat Analysis</h3>
       </div>
 
       <div class="feature-card">
-        <p>Phishing Risk</p>
-        <h3 id="aiScore">-</h3>
+        <p>Domain</p>
+        <h3>Verification</h3>
       </div>
 
+      <div class="feature-card">
+        <p>Website</p>
+        <h3>Preview</h3>
+      </div>
+
+    </div>
+
+    <!-- ✅ DISCLAIMER -->
+    <div class="disclaimer">
+      No detection system is 100% accurate. Always double check before sharing sensitive information.
     </div>
 
   </div>
@@ -97,6 +112,6 @@
 
 </div>
 
-<script src="{{ url_for('static', filename='js/script.js') }}?v=2"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}?v=3"></script>
 </body>
 </html>
