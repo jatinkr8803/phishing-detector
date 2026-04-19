@@ -1,133 +1,96 @@
-// ✅ AUTO BACKEND DETECTION
-const BACKEND_URL =
-  window.location.hostname === "127.0.0.1" ||
-  window.location.hostname === "localhost"
-    ? "http://127.0.0.1:5000"
-    : ""; // production me same domain use karega
+const BACKEND_URL = "http://127.0.0.1:5000";
 
+// INIT
+document.getElementById("scanBtn").addEventListener("click", scanURL);
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("scanBtn");
-
-  btn.addEventListener("click", scanURL);
-
-  document.getElementById("urlInput").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") scanURL();
-  });
+document.getElementById("urlInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") scanURL();
 });
-
 
 function scanURL() {
 
-  const input = document.getElementById('urlInput').value.trim();
+  const url = document.getElementById("urlInput").value.trim();
 
-  const area = document.getElementById('resultArea');
-  const box = document.getElementById('resultBox');
-  const label = document.getElementById('resultLabel');
-  const msg = document.getElementById('resultMsg');
+  const box = document.getElementById("resultBox");
+  const label = document.getElementById("resultLabel");
+  const msg = document.getElementById("resultMsg");
 
-  const domainAge = document.getElementById('domainAge');
-  const safeBrowsing = document.getElementById('safeBrowsing');
-  const aiScore = document.getElementById('aiScore');
+  const safeBrowsing = document.getElementById("safeBrowsing");
+  const aiScore = document.getElementById("aiScore");
+  const domainAge = document.getElementById("domainAge");
 
-  if (!input) return;
+  if (!url) return;
 
-  // RESET UI
-  box.className = 'result-box analyzing';
+  document.getElementById("resultArea").classList.add("visible");
+
+  box.className = "result-box analyzing";
   label.innerText = "Analyzing...";
   msg.innerText = "Running checks...";
-  domainAge.innerText = "-";
-  safeBrowsing.innerText = "-";
-  aiScore.innerText = "-";
-  aiScore.style.color = "#fff";
-
-  area.classList.add("visible");
 
   fetch(`${BACKEND_URL}/predict`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ url: input })
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({url})
   })
-    .then(res => res.json())
-    .then(data => {
+  .then(res => res.json())
+  .then(data => {
 
-      if (data.error) {
-        box.className = 'result-box danger';
-        label.innerText = "Error";
-        msg.innerText = data.error;
-        return;
-      }
+    // =========================
+    // FINAL RESULT (3 STATES)
+    // =========================
+    if (data.prediction === 1) {
+      box.className = "result-box danger";
+      label.innerText = "Phishing Website";
+      msg.innerText = "Blacklisted or dangerous ❌";
+    }
+    else if (data.prediction === 2) {
+      box.className = "result-box warning";
+      label.innerText = "Suspicious Website";
+      msg.innerText = "New or untrusted domain ⚠️";
+    }
+    else {
+      box.className = "result-box safe";
+      label.innerText = "Safe Website";
+      msg.innerText = "This site looks safe ✅";
+    }
 
-      // ✅ RESULT
-      if (data.prediction === 1) {
-        box.className = 'result-box danger';
-        label.innerText = "Phishing Website";
-        msg.innerText = "Suspicious behavior detected ⚠️";
-      } else {
-        box.className = 'result-box safe';
-        label.innerText = "Safe Website";
-        msg.innerText = "This site looks safe ✅";
-      }
+    // DOMAIN
+    domainAge.innerText = data.domain_age;
 
-      // ✅ Domain Age
-      domainAge.innerText = data.domain_age || "Not Available";
-
-      // ✅ Safe Browsing Logic (FIXED)
-      let sb = data.safe_browsing || "Not Verified";
-
-      if (sb === "Threat Found") {
-        safeBrowsing.innerText = "Blacklisted ❌";
-        safeBrowsing.style.color = "#ef4444";
-      }
-      else if (sb === "No Threat Found") {
-        if (data.prediction === 1) {
-          safeBrowsing.innerText = "Not Blacklisted ⚠️ (But Suspicious)";
-          safeBrowsing.style.color = "#facc15";
-        } else {
-          safeBrowsing.innerText = "No Threat Found ✅";
-          safeBrowsing.style.color = "#22c55e";
-        }
-      }
-      else {
-        safeBrowsing.innerText = "Not Verified ⚠️";
+    // SAFE BROWSING TEXT
+    if (data.safe_browsing === "Threat Found") {
+      safeBrowsing.innerText = "Blacklisted ❌";
+      safeBrowsing.style.color = "#ef4444";
+    }
+    else {
+      if (data.prediction === 2) {
+        safeBrowsing.innerText = "Not Blacklisted but Suspicious ⚠️";
         safeBrowsing.style.color = "#facc15";
-      }
-
-      // ✅ AI Score (ONLY LABEL)
-      if (data.ai_score !== undefined) {
-
-        let score = data.ai_score;
-        let riskLabel = "";
-
-        if (data.prediction === 0) {
-          riskLabel = "Low ✅";
-          aiScore.style.color = "#22c55e";
-        } else {
-          if (score < 30) {
-            riskLabel = "Low ✅";
-            aiScore.style.color = "#22c55e";
-          } else if (score < 70) {
-            riskLabel = "Medium ⚠️";
-            aiScore.style.color = "#facc15";
-          } else {
-            riskLabel = "High ❌";
-            aiScore.style.color = "#ef4444";
-          }
-        }
-
-        aiScore.innerText = riskLabel;
-
       } else {
-        aiScore.innerText = "N/A";
+        safeBrowsing.innerText = "Not Blacklisted ✅";
+        safeBrowsing.style.color = "#22c55e";
       }
+    }
 
-    })
-    .catch((err) => {
-      console.error(err);
-      box.className = 'result-box danger';
-      label.innerText = "Error";
-      msg.innerText = "Server not responding";
-    });
+    // AI SCORE LABEL (optional)
+    if (data.prediction === 1) {
+      aiScore.innerText = "High Risk ❌";
+      aiScore.style.color = "#ef4444";
+    }
+    else if (data.prediction === 2) {
+      aiScore.innerText = "Medium Risk ⚠️";
+      aiScore.style.color = "#facc15";
+    }
+    else {
+      aiScore.innerText = "Low Risk ✅";
+      aiScore.style.color = "#22c55e";
+    }
+
+  })
+  .catch(err => {
+    console.error(err);
+    box.className = "result-box danger";
+    label.innerText = "Error";
+    msg.innerText = "Server not responding";
+  });
 }
