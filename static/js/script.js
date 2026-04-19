@@ -1,4 +1,11 @@
-const BACKEND_URL = "http://127.0.0.1:5000";
+// =========================
+// AUTO BACKEND DETECTION
+// =========================
+const BACKEND_URL =
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname === "localhost"
+    ? "http://127.0.0.1:5000"
+    : "";
 
 // INIT
 document.getElementById("scanBtn").addEventListener("click", scanURL);
@@ -23,17 +30,31 @@ function scanURL() {
 
   document.getElementById("resultArea").classList.add("visible");
 
+  // LOADING STATE
   box.className = "result-box analyzing";
   label.innerText = "Analyzing...";
   msg.innerText = "Running checks...";
+
+  domainAge.innerText = "-";
+  safeBrowsing.innerText = "-";
+  aiScore.innerText = "-";
 
   fetch(`${BACKEND_URL}/predict`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({url})
   })
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) {
+      throw new Error("Server error");
+    }
+    return res.json();
+  })
   .then(data => {
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
 
     // =========================
     // FINAL RESULT (3 STATES)
@@ -54,10 +75,14 @@ function scanURL() {
       msg.innerText = "This site looks safe ✅";
     }
 
-    // DOMAIN
-    domainAge.innerText = data.domain_age;
+    // =========================
+    // DOMAIN AGE
+    // =========================
+    domainAge.innerText = data.domain_age || "Not Available";
 
-    // SAFE BROWSING TEXT
+    // =========================
+    // SAFE BROWSING
+    // =========================
     if (data.safe_browsing === "Threat Found") {
       safeBrowsing.innerText = "Blacklisted ❌";
       safeBrowsing.style.color = "#ef4444";
@@ -72,7 +97,9 @@ function scanURL() {
       }
     }
 
-    // AI SCORE LABEL (optional)
+    // =========================
+    // AI RISK LABEL
+    // =========================
     if (data.prediction === 1) {
       aiScore.innerText = "High Risk ❌";
       aiScore.style.color = "#ef4444";
@@ -88,9 +115,14 @@ function scanURL() {
 
   })
   .catch(err => {
-    console.error(err);
+    console.error("ERROR:", err);
+
     box.className = "result-box danger";
     label.innerText = "Error";
     msg.innerText = "Server not responding";
+
+    domainAge.innerText = "-";
+    safeBrowsing.innerText = "-";
+    aiScore.innerText = "-";
   });
 }
