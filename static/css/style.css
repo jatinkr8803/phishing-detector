@@ -226,38 +226,45 @@ nav {
 /* 🔥 FEATURES HORIZONTAL FIX */
 /* ============================= */
 
+/* ============================= */
+/* 🔥 FINAL FEATURE ALIGN FIX */
+/* ============================= */
+
 .features {
   display: flex;
-  justify-content: space-between;
-  gap: 15px;
+  justify-content: flex-start;   /* 👈 LEFT ALIGN */
+  gap: 18px;
   margin-top: 18px;
   flex-wrap: wrap;
 }
 
 .feature-card {
-  flex: 1;
-  min-width: 150px;
-  background: rgba(8, 20, 60, 0.8);
+  width: 180px;                 /* 👈 SMALL SIZE */
+  min-height: 95px;
+
+  background: rgba(8, 20, 60, 0.85);
   border: 1px solid rgba(59,130,246,0.4);
   border-radius: 10px;
-  padding: 15px;
+
+  padding: 12px;
   text-align: center;
-  transition: 0.3s;
+
+  transition: 0.3s ease;
 }
 
 .feature-card:hover {
   border-color: rgba(96,165,250,0.8);
-  box-shadow: 0 0 12px rgba(59,130,246,0.3);
+  box-shadow: 0 0 10px rgba(59,130,246,0.3);
 }
 
 .feature-card p {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: rgba(255,255,255,0.7);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .feature-card h3 {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: #60a5fa;
 }
@@ -265,4 +272,147 @@ nav {
 /* Screenshot spacing */
 .extra-results {
   margin-top: 15px;
+}
+html {
+  scroll-behavior: smooth;
+}
+
+.info-section {
+  padding: 80px 56px;
+  max-width: 800px;
+}
+
+.info-section h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.info-section p {
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+}
+
+/* Fix scroll offset */
+section {
+  scroll-margin-top: 100px;
+}
+body {
+  margin: 0;
+  font-family: 'Exo 2', sans-serif;
+  background: #0a1f44;
+  color: white;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 60px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+}
+
+.hero {
+  padding: 80px 60px;
+}
+
+.search-box {
+  margin-top: 20px;
+  display: flex;
+}
+
+input {
+  padding: 12px;
+  width: 400px;
+}
+
+button {
+  padding: 12px 20px;
+  background: #3b82f6;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.result-box {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.features-section {
+  padding: 40px 60px;
+}
+
+.features {
+  display: flex;
+  gap: 20px;
+}
+
+.feature-card {
+  border: 1px solid #3b82f6;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.info-section {
+  padding: 80px 60px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.info-card {
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.info-card ul {
+  padding-left: 18px;
+}
+
+section {
+  scroll-margin-top: 100px;
+}
+/* FIX: Info sections size control */
+.info-section {
+    max-width: 900px;
+    margin: 80px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+/* FIX: Reduce large spacing */
+.info-section h2 {
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+/* FIX: Control paragraph size */
+.info-section p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #a5b4fc;
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+/* OPTIONAL: prevent extra height */
+section {
+    min-height: auto !important;
 }

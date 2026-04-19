@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="google-site-verification" content="iZuzBW00Q5H-3NVgQ6rVMjrtXu1yfRh4-b7oINAzc78" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SecureMind - Phishing Detection Tool</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
 </head>
 
 <body>
@@ -16,20 +15,16 @@
   <div class="circuit-lines"></div>
 </div>
 
-<!-- ✅ RESTORED RINGS + LOCK -->
 <div class="shield-wrapper">
   <div class="shield-rings">
-
     <div class="ring ring-1"></div>
     <div class="ring ring-2"></div>
     <div class="ring ring-3"></div>
     <div class="ring ring-4"></div>
     <div class="ring ring-5"></div>
     <div class="ring ring-6"></div>
-
     <div class="seg-lines"></div>
 
-    <!-- LOCK ICON -->
     <div class="shield-icon">
       <svg viewBox="0 0 100 115" fill="none">
         <path d="M50 4 L92 22 L92 56 C92 80 72 100 50 111 C28 100 8 80 8 56 L8 22 Z"
@@ -40,7 +35,6 @@
               stroke="#93c5fd" stroke-width="4"/>
       </svg>
     </div>
-
   </div>
 </div>
 
@@ -49,54 +43,83 @@
 <nav>
   <div class="logo">Logo</div>
   <ul class="nav-links">
-    <li><a href="#">How it Works</a></li>
-    <li><a href="#">Features</a></li>
-    <li><a href="#">Resources</a></li>
+    <li><a href="#howItWorks">How it Works</a></li>
+    <li><a href="#featuresSection">Features</a></li>
+    <li><a href="#resources">Resources</a></li>
   </ul>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
   <h1>URL Phishing Detection Tool</h1>
   <p>Check whether a website is safe or potentially harmful before you proceed</p>
 
   <div class="search-box">
     <input type="text" id="urlInput" placeholder="Enter a website URL">
-    <button class="btn-scan" id="scanBtn">Scan Now</button>
+    <button class="btn-scan" id="scanBtn">Scan Now ↗</button>
   </div>
 
-  <!-- RESULT -->
   <div id="resultArea" class="result-area">
     <div class="result-box" id="resultBox">
       <div id="resultLabel"></div>
       <div id="resultMsg"></div>
     </div>
+  </div>
+</section>
 
-    <!-- FEATURES -->
-    <div class="features">
-
-      <div class="feature-card">
-        <p>Domain Age(in days)</p>
-        <h3 id="domainAge">-</h3>
-      </div>
-
-      <div class="feature-card">
-        <p>Safe Browsing</p>
-        <h3 id="safeBrowsing">-</h3>
-      </div>
-
-      <div class="feature-card">
-        <p>Phishing Risk</p>
-        <h3 id="aiScore">-</h3>
-      </div>
-
+<!-- ✅ FEATURES (SEPARATE + SAME UI) -->
+<section id="featuresSection" class="features-section">
+  
+  <div class="features">
+    <div class="feature-card">
+      <p>Domain Age(in days)</p>
+      <h3 id="domainAge">-</h3>
     </div>
 
+    <div class="feature-card">
+      <p>Safe Browsing</p>
+      <h3 id="safeBrowsing">-</h3>
+    </div>
+
+    <div class="feature-card">
+      <p>Phishing Risk</p>
+      <h3 id="aiScore">-</h3>
+    </div>
   </div>
 
+<!-- ✅ FEATURES (PARAGRAPH STYLE LIKE HOW IT WORKS) -->
+<section id="featuresSection" class="info-section">
+  <h2>Features</h2>
+  <p>
+    Our phishing detection system combines multiple powerful security layers to ensure accurate and reliable results. 
+    It analyzes domain age to identify newly created suspicious websites, performs safe browsing checks against trusted 
+    security databases to detect blacklisted URLs, and uses AI-based threat detection to evaluate phishing risk based on 
+    URL patterns and behavior. Together, these features provide a clear and intelligent assessment of whether a website 
+    is safe, suspicious, or potentially harmful.
+  </p>
+</section>
+
+
+<!-- HOW IT WORKS -->
+<section id="howItWorks" class="info-section">
+  <h2>How It Works</h2>
+  <p>
+    Our system intelligently analyzes URLs using advanced AI models, domain intelligence, and real-time security checks.
+    It detects suspicious patterns such as unusual URL structures, newly registered domains, and known phishing signatures.
+    By combining machine learning predictions with trusted security sources, it delivers fast and reliable results.
+  </p>
+</section>
+
+<!-- RESOURCES -->
+<section id="resources" class="info-section">
+  <h2>Resources</h2>
+  <p>
+   Stay informed and protected with essential cybersecurity knowledge. Learn how phishing attacks work, recognize common warning signs like fake login pages or urgent messages, and follow best practices to avoid falling victim. By understanding these threats and applying preventive measures, users can significantly reduce their risk while browsing online.
+  </p>
 </section>
 
 </div>
 
-<script src="{{ url_for('static', filename='js/script.js') }}?v=2"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}?v=3"></script>
 </body>
 </html>

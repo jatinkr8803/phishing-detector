@@ -7,16 +7,23 @@ const BACKEND_URL =
     ? "http://127.0.0.1:5000"
     : "";
 
+// =========================
 // INIT
-document.getElementById("scanBtn").addEventListener("click", scanURL);
+// =========================
+const scanBtn = document.getElementById("scanBtn");
+const urlInput = document.getElementById("urlInput");
 
-document.getElementById("urlInput").addEventListener("keydown", function(e) {
+scanBtn.addEventListener("click", scanURL);
+urlInput.addEventListener("keydown", e => {
   if (e.key === "Enter") scanURL();
 });
 
-function scanURL() {
+// =========================
+// MAIN FUNCTION
+// =========================
+async function scanURL() {
 
-  const url = document.getElementById("urlInput").value.trim();
+  const url = urlInput.value.trim();
 
   const box = document.getElementById("resultBox");
   const label = document.getElementById("resultLabel");
@@ -26,38 +33,51 @@ function scanURL() {
   const aiScore = document.getElementById("aiScore");
   const domainAge = document.getElementById("domainAge");
 
-  if (!url) return;
+  const features = document.querySelector(".features");
+
+  // ❌ EMPTY CHECK
+  if (!url) {
+    alert("Please enter a URL");
+    return;
+  }
+
+  if (!url.startsWith("http")) {
+    alert("URL must start with http or https");
+    return;
+  }
 
   document.getElementById("resultArea").classList.add("visible");
 
-  // LOADING STATE
+  // 🔥 RESET FEATURES (important)
+  features.classList.remove("show");
+
+  scanBtn.disabled = true;
+  scanBtn.innerText = "Scanning...";
+
   box.className = "result-box analyzing";
   label.innerText = "Analyzing...";
-  msg.innerText = "Running checks...";
+  msg.innerText = "Running security checks...";
 
   domainAge.innerText = "-";
   safeBrowsing.innerText = "-";
   aiScore.innerText = "-";
 
-  fetch(`${BACKEND_URL}/predict`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({url})
-  })
-  .then(res => {
-    if (!res.ok) {
-      throw new Error("Server error");
-    }
-    return res.json();
-  })
-  .then(data => {
+  try {
 
-    if (data.error) {
-      throw new Error(data.error);
-    }
+    const res = await fetch(`${BACKEND_URL}/predict`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({url})
+    });
+
+    if (!res.ok) throw new Error("Server error");
+
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
 
     // =========================
-    // FINAL RESULT (3 STATES)
+    // RESULT STATE
     // =========================
     if (data.prediction === 1) {
       box.className = "result-box danger";
@@ -75,14 +95,10 @@ function scanURL() {
       msg.innerText = "This site looks safe ✅";
     }
 
-    // =========================
     // DOMAIN AGE
-    // =========================
     domainAge.innerText = data.domain_age || "Not Available";
 
-    // =========================
     // SAFE BROWSING
-    // =========================
     if (data.safe_browsing === "Threat Found") {
       safeBrowsing.innerText = "Blacklisted ❌";
       safeBrowsing.style.color = "#ef4444";
@@ -97,9 +113,7 @@ function scanURL() {
       }
     }
 
-    // =========================
-    // AI RISK LABEL
-    // =========================
+    // RISK
     if (data.prediction === 1) {
       aiScore.innerText = "High Risk ❌";
       aiScore.style.color = "#ef4444";
@@ -113,8 +127,10 @@ function scanURL() {
       aiScore.style.color = "#22c55e";
     }
 
-  })
-  .catch(err => {
+    // 🔥 SHOW FEATURES AFTER RESULT
+    features.classList.add("show");
+
+  } catch (err) {
     console.error("ERROR:", err);
 
     box.className = "result-box danger";
@@ -124,5 +140,18 @@ function scanURL() {
     domainAge.innerText = "-";
     safeBrowsing.innerText = "-";
     aiScore.innerText = "-";
-  });
+  }
+
+  scanBtn.disabled = false;
+  scanBtn.innerText = "Scan Now ↗";
 }
+
+// NAV ACTIVE
+const navLinks = document.querySelectorAll(".nav-links a");
+
+navLinks.forEach(link => {
+  link.addEventListener("click", function() {
+    navLinks.forEach(l => l.classList.remove("active"));
+    this.classList.add("active");
+  });
+});
