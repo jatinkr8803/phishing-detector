@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 import pickle
 import pandas as pd
-import os
-
+import re
 from flask_cors import CORS
 
-from utils.url_feature import extract_features
 from utils.domain_age import get_domain_age
 from utils.safe_browsing import check_safe_browsing
 
@@ -13,15 +11,9 @@ app = Flask(__name__)
 CORS(app)
 
 # =========================
-# LOAD MODEL
+# LOAD MODEL ONLY
 # =========================
-try:
-    model = pickle.load(open("model/phishing_model.pkl", "rb"))
-    print("✅ Model loaded")
-except Exception as e:
-    print("❌ Model load error:", e)
-    model = None
-
+model = pickle.load(open("model/phishing_model.pkl", "rb"))
 
 @app.route('/')
 def home():
@@ -29,99 +21,68 @@ def home():
 
 
 # =========================
-# PREDICT ROUTE
+# FEATURE GENERATION
 # =========================
+def generate_features(url):
+    return {
+        'having_IP_Address': 1 if re.search(r'\d+\.\d+\.\d+\.\d+', url) else 0,
+        'URL_Length': 0 if len(url) < 54 else (1 if len(url) <= 75 else 2),
+        'Shortining_Service': 1 if "bit.ly" in url else 0,
+        'having_At_Symbol': 1 if "@" in url else 0,
+        'double_slash_redirecting': 1 if url.count("//") > 1 else 0,
+        'Prefix_Suffix': 1 if "-" in url else 0,
+        'having_Sub_Domain': 1 if url.count('.') > 2 else 0,
+        'SSLfinal_State': 1 if url.startswith("https") else 0,
+        'HTTPS_token': 1 if "https" in url else 0
+    }
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        data = request.get_json()
-        url = data.get("url")
+        url = request.json.get("url")
 
         if not url:
             return jsonify({"error": "No URL provided"})
 
-        print("\n🔍 URL:", url)
+        # Features
+        features = generate_features(url)
+        df = pd.DataFrame([features])
+        df = df.reindex(columns=model.feature_names_in_, fill_value=0)
 
-        # =========================
-        # FEATURE EXTRACTION
-        # =========================
-        features = extract_features(url)
-        features_df = pd.DataFrame([features])
+        # ML
+        prediction = int(model.predict(df)[0])
+        prob = model.predict_proba(df)[0][1] * 100
 
-        if model is not None:
-            try:
-                features_df = features_df.reindex(
-                    columns=model.feature_names_in_,
-                    fill_value=0
-                )
-            except:
-                pass
+        # External checks
+        age = get_domain_age(url)
+        safe = check_safe_browsing(url)
 
-        # =========================
-        # ML PREDICTION (OPTIONAL)
-        # =========================
-        prediction = 0
-        ai_score = 50
-
-        if model is not None:
-            try:
-                prediction = int(model.predict(features_df)[0])
-
-                try:
-                    prob = model.predict_proba(features_df)[0][1]
-                    ai_score = round(prob * 100, 2)
-                except:
-                    pass
-
-            except Exception as e:
-                print("ML error:", e)
-
-        # =========================
-        # DOMAIN AGE
-        # =========================
-        try:
-            age = get_domain_age(url)
-            domain_age = f"{age} days" if age != -1 else "Not Available"
-        except:
-            age = -1
-            domain_age = "Not Available"
-
-        # =========================
-        # SAFE BROWSING
-        # =========================
-        try:
-            safe = check_safe_browsing(url)
-            safe_status = "Threat Found" if safe == "Threat Found" else "No Threat Found"
-        except Exception as e:
-            print("Safe browsing error:", e)
-            safe_status = "No Threat Found"
-
-        # =========================
-        # 🔥 FINAL DECISION (YOUR LOGIC)
-        # =========================
-        SUSPICIOUS_THRESHOLD = 90  # days
-
-        if safe_status == "Threat Found":
-            final_prediction = 1   # phishing
-
-        elif age != -1 and age < SUSPICIOUS_THRESHOLD:
-            final_prediction = 2   # suspicious
-
+        # Final logic
+        if "@" in url or "bit.ly" in url:
+            final = 1
+        elif safe == "Threat Found":
+            final = 1
+        elif prediction == 1 and age != -1 and age < 90:
+            final = 1
+        elif prediction == 1:
+            final = 2
+        elif age != -1 and age < 90:
+            final = 2
         else:
-            final_prediction = 0   # safe
+            final = 0
 
         return jsonify({
-            "prediction": int(final_prediction),
-            "domain_age": domain_age,
-            "safe_browsing": safe_status,
-            "ai_score": ai_score
+            "prediction": final,
+            "ai_score": round(prob, 2),
+            "domain_age": age if age != -1 else "Not Available",
+            "safe_browsing": safe
         })
 
     except Exception as e:
-        print("🔥 ERROR:", e)
+        print("ERROR:", e)
         return jsonify({"error": "Server error"})
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(debug=True)

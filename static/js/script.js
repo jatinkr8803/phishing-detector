@@ -105,7 +105,7 @@ async function scanURL() {
     }
     else {
       if (data.prediction === 2) {
-        safeBrowsing.innerText = "Not Blacklisted but Suspicious ⚠️";
+        safeBrowsing.innerText = "Not blacklisted, but detected as suspicious ⚠️";
         safeBrowsing.style.color = "#facc15";
       } else {
         safeBrowsing.innerText = "Not Blacklisted ✅";
